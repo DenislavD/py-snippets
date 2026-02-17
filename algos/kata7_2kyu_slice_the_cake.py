@@ -4,7 +4,7 @@ def cut(cake):
     #   Create arrays/views, count raisins, get shapes, helper funcs O(k) each,
     #   Main logic: worst case O(m^n), best case O(m*n). Final: O(m^n + k)
     # Space complexity: New bytearrays, output O(k) each, table O(n*k),
-    #   Deadends worst case O(m^n), cuts O(n). Final: O(m^n + n*k)
+    #   Cuts O(n). Final: O(n*k + k + n)
 
     # calculate all n rectangular divisors of area
     def get_shapes(x, y, parts=1) -> list:
@@ -70,36 +70,32 @@ def cut(cake):
     # main solution pathway
     table = [[]] * (raisins + 1) # holds the current step's cake_barr form
     table[0] = bytearray(len(cake_barr)) # initialize with full cake
-    deadends = []
+    indexes = [-1] * raisins # backtracking
     cuts = []
 
     while len(cuts) < raisins:
-        dead = True
+        found = False
         cake_form_current = table[len(cuts)]
         view_form = memoryview(cake_form_current).cast('B', shape=[rows, cols])
 
         start = get_next_start(cake_form_current)
-        # print(start, )
-        for shape in shapes:
+        # print(start, indexes)
+        for ind, shape in enumerate(shapes):
             # print(f'Check_cut {cuts=} with {shape}: {check_cut(view, view_form, start, shape)}')
-            candidate = [*cuts, shape]
-            if candidate not in deadends and check_cut(view, view_form, start, shape) == 1:
+            if ind > indexes[len(cuts)] and check_cut(view, view_form, start, shape) == 1:
+                indexes[len(cuts)] = ind # remember index
                 next_form = cake_form_current.copy()
                 make_cut(next_form, start, shape)
                 cuts.append(shape)
                 table[len(cuts)] = next_form
-                dead = False
-                # print(f'Cut {shape}, {cuts=}')
+                # print(f'Cut {shape}, {cuts=}, {indexes=}')
+                found = True
                 break # move forward
-            else:
-                # print('DEAD', candidate)
-                deadends.append(candidate)
 
-        if dead:
-            deadends.append(cuts.copy())
-            # print(f'{deadends=}')
-            if [] in deadends:
-                return [] # no solution
+        if not cuts: return [] # no solution
+        if not found:
+            # print(f'Resetting index {len(cuts)}')
+            indexes[len(cuts)] = -1 # reset index
             cuts.pop() # go 1 step back
     
     output = return_cuts(table, cuts)
@@ -125,21 +121,22 @@ def cut(cake):
 # ................
 # .o..............
 # '''.strip() # test 4 hard
-# # c = '''
-# # .o.o....
-# # ........
-# # ....o...
-# # ........
-# # .....o..
-# # ........
-# # '''.strip() # test 2 medium
-# # c = '''
-# # ........
-# # ..o.....
-# # ...o....
-# # ........
-# # '''.strip() # test 1
+# c = '''
+# .o.o....
+# ........
+# ....o...
+# ........
+# .....o..
+# ........
+# '''.strip() # test 2 medium
+# c = '''
+# ........
+# ..o.....
+# ...o....
+# ........
+# '''.strip() # test 1
 
 # from pprint import pprint
 # pprint(cut(c), width=20)
+
 
