@@ -97,3 +97,79 @@ v2 = Vector2d(3.1, 4.2)
 assert len({v1, v2}) == 2
 
 print('All assertions passed.')
+
+
+# partial n-dimension implementation
+from functools import reduce
+from operator import xor, index
+
+class Vector:
+    typecode = 'd'
+    __match_args__ = ('x', 'y', 'z', 't')
+
+    def __init__(self, components):
+        self._components = array(self.typecode, components)
+
+    def __len__(self):
+        return len(self._components)
+
+    def __eq__(self, other): # so all() uses short-circuit evaluation in the end!
+        return len(self) == len(other) and all(a == b for a, b in zip(self, other))
+
+    def __hash__(self):
+        hashes = (hash(x) for x in self)
+        return reduce(xor, hashes, 0) # initial value 0 so that empty can work too
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            cls = type(self)
+            return cls(self._components[key])
+        ind = index(key)
+        return self._components[ind]
+
+    # simulate v.x, v.y, v.z, v.t
+    def __getattr__(self, name):
+        cls = type(self)
+        try:
+            pos = cls.__match_args__.index(name)
+        except ValueError:
+            pos = -1
+        if 0 <= pos < len(self._components):
+            return self._components[pos]
+        msg = f'{cls.__name__} object has no attribute {name}'
+        raise AttributeError(msg)
+
+    # disable assigning to .a-z attributes
+    def __setattr__(self, name, value):
+        cls = type(self)
+        if len(name) == 1:
+            error = ''
+            if name in cls.__match_args__:
+                error = 'Read-only attribute {attr_name}'
+            elif name.islower(): # Return True if all chars (cnt>1) are lowercase
+                error = "Can't set attributes 'a-z' in {cls_name}"
+            
+            if error:
+                msg = error.format(cls_name=cls.__name__, attr_name=name)
+                raise AttributeError(msg)
+        
+        super().__setattr__(name, value)
+
+
+# tests
+vA = Vector(range(7))
+vB = Vector(range(8))
+
+assert len(vA) == 7
+assert vA != vB
+assert vA[1] == 1.0
+assert vA[1:3] == Vector([1.0, 2.0])
+assert (vA.x, vA.t) == (0.0, 3.0)
+try:
+    vA.x = 5
+    print(f'ASSIGNMENT: {vA.x=}')
+except AttributeError: # Read-only attribute x
+    pass
+vA.B = True
+
+print('All n-dimensional Vector assertions passed.')
