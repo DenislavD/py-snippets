@@ -1,6 +1,6 @@
 # from Fluent Python - data structures
 from collections import namedtuple
-from random import randint, choice
+from random import randint, choice, shuffle
 
 Card = namedtuple('Karta', ['suit', 'rank'])
 
@@ -35,12 +35,19 @@ for card in reversed(deck[:5]):
 
 assert Card('Q', 'kupa') in deck
 
-# Flat sequences - str, bytes, array.array
-from array import array
-arr = array('d', [9.46, 13.02, 5]) # one object in C with the same type of items in it
-print(arr)
+try:
+    shuffle(deck)
+except TypeError:
+    print("'FrenchDeck' object does not support item assignment")
+# monkey patching: dynamically changing a module, class or function at runtime to fix bug or add functionality
+def set_card(deck, position, card):
+    deck._cards[position] = card
+FrenchDeck.__setitem__ = set_card
+
+shuffle(deck)
+print(deck[:5])
+
 
 # Generator expressions - () instead of [] in list comprehensions
 for tshirt in ((size, color) for size in ['S', 'M', 'L'] for color in ['black', 'white']):
-    print(tshirt) # yields res
-
+    print(tshirt, end=' ') # yields res
