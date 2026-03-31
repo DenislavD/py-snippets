@@ -2,7 +2,7 @@
 
 from sqlalchemy import create_engine, ForeignKey, String, MetaData, Table
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
-from typing import Optional, List
+from typing import Optional
 from sqlalchemy1 import DATABASE_URL
 
 
@@ -20,7 +20,7 @@ class Fruit(Base):
     name: Mapped[str] = mapped_column(String(30))
     taste: Mapped[Optional[str]]
 
-    continents: Mapped[List['Continent']] = relationship(back_populates='fruit')
+    continents: Mapped[list['Continent']] = relationship(back_populates='fruit')
 
     def __repr__(self): # emulate dataclass repr
         return f'Fruit({self.id=}, {self.name=}, {self.taste=})'
