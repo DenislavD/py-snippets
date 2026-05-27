@@ -1,0 +1,53 @@
+Github Cheatsheet
+
+# Base commands
+git remote add origin <url>
+git remote set-url origin <url> Changes the origin
+git remote -v                   Shows the current urls connected
+git branch -M main              Rename main branch to main
+
+
+git init .                      This creates a hidden .git folder
+git log origin/live --oneline -5 View commit history
+git cherry-pick <hash>		Pick commits, needs to be done in order older->newer
+git diff                        Shows the line-by-line changes
+git restore <filename>		Opposite of add - reloads from last commit
+git rm --cached <file>		Remove file from git history (if committed before .gitignore)
+git update-index --chmod=+x .scripts/deploy.sh
+
+git add .                       Stages files in current folder
+git commit -m "Initial commit"  Saves the staged files as a commit, also see --amend
+git push -u origin main         Push
+
+
+# Specific use cases:
+
+1. Delete (rewrite history) commits on remote:
+git clone <url> (in a temp dir)
+git reset HEAD^ --hard
+git push origin -f
+
+
+2. Set current local branch to track remote branch:
+git fetch --all
+git pull --all
+git branch --set-upstream-to=origin/foo
+
+3. Merging on upstream main
+- commit and push dev as usual
+- create and merge the pull request on github
+- sync local branches after the merge:
+git pull
+git checkout main
+git pull origin main
+git checkout dev
+git merge main # This will be a "fast-forward" with no new commit
+git push # push the sync to origin
+
+4. Sprint -> Live release flow:
+git checkout sprint
+git pull origin sprint
+git checkout live
+git pull origin live
+git merge sprint
+git push origin live
