@@ -44,10 +44,6 @@ class SentenceIterator:
     def __iter__(self): # alternatively can be gained by subclassing abc.Iterator
         return self
 
-sentence = Sentence('I am cool.')
-for i, word in enumerate(sentence, 1):
-    print(i, ':', word, end='; ')
-
 
 # with generator function (generator factory which returns a generator object)
 # No SentenceIterator needed
@@ -57,7 +53,13 @@ class SentenceGen(Sentence):
             yield word
         # OR: yield from self.words
 
-print() # clear line
-sentence_gen = SentenceGen('You are great!')
-for i, word in enumerate(sentence_gen, 1):
-    print(i, ':', word, end='; ')
+
+if __name__ == '__main__':
+    sentence = Sentence('I am cool.')
+    for i, word in enumerate(sentence, 1):
+        print(i, ':', word, end='; ')    
+
+    print() # clear line
+    sentence_gen = SentenceGen('You are great!')
+    for i, word in enumerate(sentence_gen, 1):
+        print(i, ':', word, end='; ')
