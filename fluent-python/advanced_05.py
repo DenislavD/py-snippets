@@ -30,8 +30,8 @@ for i in res_lazy:
 
 
 
-# advanced_4 example reworked lazily
-from advanced_4 import SentenceGen, RE_WORD
+# advanced_04 example reworked lazily
+from advanced_04 import SentenceGen, RE_WORD
 
 class SentenceGenLazy(SentenceGen):
     def __init__(self, text):

@@ -1,4 +1,4 @@
-# Fluent Python: Iterators and classic Coroutines
+# Fluent Python: Iterators
 
 # emulating an iterator in for loop
 s = 'ABC'
