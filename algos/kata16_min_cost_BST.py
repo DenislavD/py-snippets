@@ -157,30 +157,69 @@ class Node:
         return self.value != other.value 
 
 
-def compare_rotations(item, holder):
+def compare_rotations(item, holder, i):
     curr_cost = holder.right.cost() # add last_action?
     swaps_cnt = 0
-    while item.right:
+
+    #try left rotation
+    if item.right:
         rotated = item.rot_left()
         new_cost = holder.right.cost()
+        # print(f'{curr_cost=} vs {new_cost=}')
         if new_cost < curr_cost:
             curr_cost = new_cost
             swaps_cnt += 1
+            print(f'-> LEFT ROTATION for {i}')
         else:
             # print('Reverting left rot..')
             rotated.rot_right()
-            break
+        # print(f'Current tree: {holder.right}')
 
-    while item.left:
+    #try right rotation
+    if item.left:
         rotated = item.rot_right()
         new_cost = holder.right.cost()
+        # print(f'{curr_cost=} vs {new_cost=}')
         if new_cost < curr_cost:
             curr_cost = new_cost
             swaps_cnt += 1
+            print(f'-> RIGHT ROTATION for {i}')
         else:
             # print('Reverting right rot..')
             rotated.rot_left()
-            break
+        # print(f'Current tree: {holder.right}')
+
+    #try left-right rotation
+    if item.right and item.parent is not holder and item.parent.left is item:
+        rr = item.parent
+        rotated_l = item.rot_left()
+        rotated_r = rr.rot_right()
+        new_cost = holder.right.cost()
+        if new_cost < curr_cost:
+            curr_cost = new_cost
+            swaps_cnt += 2
+            print(f'-> LEFT-RIGHT ROTATION for {i}')
+        else:
+            #print('Reverting left-right rot..')
+            rotated_r.rot_left()
+            rotated_l.rot_right()
+        # print(f'Current tree: {holder.right}')
+
+    #try right-left rotation
+    if item.left and item.parent is not holder and item.parent.right is item:
+        rl = item.parent
+        rotated_r = item.rot_right()
+        rotated_l = rl.rot_left()
+        new_cost = holder.right.cost()
+        if new_cost < curr_cost:
+            curr_cost = new_cost
+            swaps_cnt += 2
+            print(f'-> RIGHT-LEFT ROTATION for {i}')
+        else:
+            #print('Reverting right-left rot..')
+            rotated_l.rot_right()
+            rotated_r.rot_left()
+        # print(f'Current tree: {holder.right}')
 
     return swaps_cnt
 
@@ -189,12 +228,20 @@ def make_min_tree(node_list) -> Tree: # node_list is sorted in ascending order
     """Returns a minimal cost tree of all nodes in node_list."""
 
     holder, tree = Tree.create_weighted(node_list)
-    # print('Initial:', holder.right, holder.right.cost())
+    print('Initial:', holder.right, holder.right.cost())
 
-    swaps_cnt = 0
-    for item in tree.inorder():
-        # print('Current item:', item)
-        swaps_cnt += compare_rotations(item, holder)
+    i = swaps_cnt = 0
+    items = tree.inorder() # list(reversed(tree.inorder()))
+    # items.reverse()
+    while i < len(items):
+        # print('Current item:', id(items[i]), 'i:', i)
+        curr_cnt = compare_rotations(items[i], holder, i)
+        if curr_cnt:
+            # print(f'Reset rotations on {i=}')
+            i = 0
+        else:
+            i = i + 1 # reset rotations if swap
+        swaps_cnt += curr_cnt
 
     print(holder.right, '--->', holder.right.cost(), 'Swaps:', swaps_cnt)
     return holder.right
