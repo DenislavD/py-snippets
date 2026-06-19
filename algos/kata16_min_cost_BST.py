@@ -256,8 +256,10 @@ node_list_2 = Node('A', 50), Node('B', 9), Node('C', 8), Node('D', 7), Node('E',
 node_list_3 = Node('A', 20), Node('B', 9), Node('C', 8), Node('D', 7), Node('E', 6)
 node_list_4 = Node('A', 30), Node('B', 9), Node('C', 8), Node('D', 7), Node('E', 6)
 node_list_5 = Node('A', 10), Node('B', 9), Node('C', 8), Node('D', 7), Node('E', 1)
-nl = node_list_0, node_list_1, node_list_2, node_list_3, node_list_4, node_list_5
-r1 = 65, 87, 138, 105, 118, 70
+node_list_LR = Node('A', 4), Node('B', 3), Node('C', 5)
+node_list_RL = Node('A', 5), Node('B', 3), Node('C', 4)
+nl = node_list_0, node_list_1, node_list_2, node_list_3, node_list_4, node_list_5, node_list_LR, node_list_RL
+r1 = 65, 87, 138, 105, 118, 70, 21, 21
 
 assertions = []
 for nodes, result, i in zip(nl, r1, range(10)):
