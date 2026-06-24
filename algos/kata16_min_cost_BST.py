@@ -1,19 +1,15 @@
-import heapq
-from collections import namedtuple, deque
-Weighted = namedtuple('Weighted', ('weight', 'priority', 'value'))
+from operator import attrgetter
 
 class Tree:
     
-    def __init__(self, root, left=None, right=None, parent=None):
+    def __init__(self, root, left=None, right=None):
         assert root and type(root) == Node
         if left: assert type(left) == Tree and left.root < root
         if right: assert type(right) == Tree and root < right.root
-        if parent: assert type(parent) == Tree
 
         self.left = left
         self.root = root
         self.right = right
-        self.parent = parent
 
     def is_leaf(self):
         return not(self.left or self.right)
@@ -23,7 +19,7 @@ class Tree:
 
     def as_list(self) -> list:
         if self.is_leaf():
-            return [f'{self.root.value}:{self.root.weight}'] # [self.root.value]
+            return [f'{self.root.value}:{self.root.weight}']
 
         left = self.left.as_list() if self.left else '_'
         right = self.right.as_list() if self.right else '_'
@@ -35,23 +31,6 @@ class Tree:
     def __ne__(self, other):
         return not self.__eq__(other)
 
-    def insert(self, node):
-        # find correct parent node
-        current = self
-        while current:
-            if current.root > node and current.left:
-                current = current.left
-            elif current.root < node and current.right:
-                current = current.right
-            else:
-                break
-
-        # insert
-        if current.root > node:
-            current.left = Tree(node, parent=current)
-        else:
-            current.right = Tree(node, parent=current)
-
     def cost(self, depth=1):
         """Returns the cost of a tree which root is depth deep."""
         if not self:
@@ -60,80 +39,6 @@ class Tree:
         left_cost = self.left.cost(depth + 1) if self.left else 0
         right_cost = self.right.cost(depth + 1) if self.right else 0
         return self.root.weight * depth + left_cost + right_cost
-
-    # using L and R instead of self?!
-    def rot_left(L) -> 'Tree':
-        # print(f'Rotating {L.root.value} left')
-        P = L.parent
-        R = L.right
-        L.right = R.left
-        if R.left:
-            R.left.parent = L
-        R.left = L
-        L.parent = R
-        R.parent = P
-        # update parent down link
-        if P.left and P.left == L:
-            P.left = R
-        else:
-            P.right = R
-        return R
-
-    def rot_right(R) -> 'Tree':
-        # print(f'Rotating {R.root.value} right')
-        P = R.parent
-        L = R.left
-        R.left = L.right
-        if L.right:
-            L.right.parent = R
-        L.right = R
-        R.parent = L
-        L.parent = P
-        # update parent down link
-        if P.left and P.left == R:
-            P.left = L
-        else:
-            P.right = L
-        return L
-
-    def inorder(self) -> ['Tree']:
-        if not self: return []
-
-        items = []
-        if self.left: items += self.left.inorder()
-
-        items += [self] # current item (starting)
-
-        if self.right: items += self.right.inorder()
-        return items
-
-    def inlevelorder(self) -> ['Tree']:
-        items = []
-        queue = deque([self])
-        while queue:
-            if curr := queue.popleft():
-                items += [curr]
-                queue.extend([curr.left, curr.right])
-        return items
-
-    @classmethod
-    def create_weighted(cls, list_):
-        # create inverted min heap by weight and priority closer to the middle
-        mid = len(list_) // 2
-        heap = [Weighted(-item.weight, abs(mid-i), item.value) for i, item in enumerate(list_)]
-        heapq.heapify(heap)
-
-        holder = cls(Node('', -1)) # wrapper to always have parent, min value ''
-        while True:
-            try:
-                popped = heapq.heappop(heap)
-            except IndexError:
-                break
-
-            node = Node(popped.value, -popped.weight)
-            holder.insert(node)
-
-        return holder, holder.right
 
 class Node: 
 
@@ -157,96 +62,59 @@ class Node:
         return self.value != other.value 
 
 
-def compare_rotations(item, holder, i):
-    curr_cost = holder.right.cost() # add last_action?
-    swaps_cnt = 0
-
-    #try left rotation
-    if item.right:
-        rotated = item.rot_left()
-        new_cost = holder.right.cost()
-        # print(f'{curr_cost=} vs {new_cost=}')
-        if new_cost < curr_cost:
-            curr_cost = new_cost
-            swaps_cnt += 1
-            print(f'-> LEFT ROTATION for {i}')
-        else:
-            # print('Reverting left rot..')
-            rotated.rot_right()
-        # print(f'Current tree: {holder.right}')
-
-    #try right rotation
-    if item.left:
-        rotated = item.rot_right()
-        new_cost = holder.right.cost()
-        # print(f'{curr_cost=} vs {new_cost=}')
-        if new_cost < curr_cost:
-            curr_cost = new_cost
-            swaps_cnt += 1
-            print(f'-> RIGHT ROTATION for {i}')
-        else:
-            # print('Reverting right rot..')
-            rotated.rot_left()
-        # print(f'Current tree: {holder.right}')
-
-    #try left-right rotation
-    if item.right and item.parent is not holder and item.parent.left is item:
-        rr = item.parent
-        rotated_l = item.rot_left()
-        rotated_r = rr.rot_right()
-        new_cost = holder.right.cost()
-        if new_cost < curr_cost:
-            curr_cost = new_cost
-            swaps_cnt += 2
-            print(f'-> LEFT-RIGHT ROTATION for {i}')
-        else:
-            #print('Reverting left-right rot..')
-            rotated_r.rot_left()
-            rotated_l.rot_right()
-        # print(f'Current tree: {holder.right}')
-
-    #try right-left rotation
-    if item.left and item.parent is not holder and item.parent.right is item:
-        rl = item.parent
-        rotated_r = item.rot_right()
-        rotated_l = rl.rot_left()
-        new_cost = holder.right.cost()
-        if new_cost < curr_cost:
-            curr_cost = new_cost
-            swaps_cnt += 2
-            print(f'-> RIGHT-LEFT ROTATION for {i}')
-        else:
-            #print('Reverting right-left rot..')
-            rotated_l.rot_right()
-            rotated_r.rot_left()
-        # print(f'Current tree: {holder.right}')
-
-    return swaps_cnt
-
+cost = Tree.cost
 
 def make_min_tree(node_list) -> Tree: # node_list is sorted in ascending order
-    """Returns a minimal cost tree of all nodes in node_list."""
+    """
+    Returns a minimal cost tree of all nodes in node_list.
+    Dynamic programming: Tabulation approach with O(n^3) time and O(n^2) space complexity.
+    """
+    get_weight = attrgetter('weight')
+    
+    # initialize costs and roots tables
+    n = len(node_list)
+    t_costs = [[0] * (n + 1) for _ in range(n + 2)] # 1-based, first 0 row is empty/ignored
+    t_roots = [[0] * n for _ in range(n)] # 0-based
 
-    holder, tree = Tree.create_weighted(node_list)
-    print('Initial:', holder.right, holder.right.cost())
+    for row, node in enumerate(node_list):
+        t_costs[row+1][row] = 0
+        t_costs[row+1][row+1] = node.weight
+    t_costs[row+2][n] = 0
 
-    i = swaps_cnt = 0
-    items = tree.inorder() # list(reversed(tree.inorder()))
-    # items.reverse()
-    while i < len(items):
-        # print('Current item:', id(items[i]), 'i:', i)
-        curr_cnt = compare_rotations(items[i], holder, i)
-        if curr_cnt:
-            # print(f'Reset rotations on {i=}')
-            i = 0
-        else:
-            i = i + 1 # reset rotations if swap
-        swaps_cnt += curr_cnt
+    # fill in the tables
+    for diagonal in range(n):
+        for i in range(1, n + 1 - diagonal):
+            j = diagonal + i
 
-    print(holder.right, '--->', holder.right.cost(), 'Swaps:', swaps_cnt)
-    return holder.right
+            min_ = float('inf')
+            for mid in range(i, j + 1):
+                cost = t_costs[i][mid-1] + t_costs[mid+1][j]
+                if cost < min_:
+                    min_ = cost
+                    t_roots[i-1][j-1] = mid - 1 # record root node as 0-based
+            t_costs[i][j] = min_ + sum(map(get_weight, node_list[i-1:j]))
 
-cost = Tree.cost
+    # construct tree, root table is 0-based
+    root_index = t_roots[0][n-1]
+    root_node = node_list[root_index]
+    root = Tree(root_node)
+
+    stack = [(root, 0, n-1)]
+    while stack:
+        tree, i, j = stack.pop()
+        mid = t_roots[i][j]
+
+        if mid < j: # build the right tree
+            right_index = t_roots[mid+1][j]
+            tree.right = Tree(node_list[right_index])
+            stack.append((tree.right, mid + 1, j))
+
+        if mid > i: # build the left tree
+            left_index = t_roots[i][mid-1]
+            tree.left = Tree(node_list[left_index])
+            stack.append((tree.left, i, mid - 1))
+
+    return root
 
 
 # TESTS
