@@ -52,3 +52,6 @@ t6 = Lambda(x, Lambda(y, x))
 l = t6
 res = T(l.param, l.body)
 print('Result:', res)
+
+# parse expression
+s = "λf.(λx.f(λy.xxy))(λx.f(λy.xxy))"
