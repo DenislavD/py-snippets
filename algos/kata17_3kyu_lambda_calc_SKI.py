@@ -55,3 +55,25 @@ print('Result:', res)
 
 # parse expression
 s = "λf.(λx.f(λy.xxy))(λx.f(λy.xxy))"
+
+import re
+
+text = f'({s})' # add outer brackets to simplify loop
+
+extracted = []
+while res:= re.search(r'\([^()]*\)', text):
+	subexpr = res.group()
+	extracted.append(subexpr[1:-1])
+	text = text.replace(subexpr, '', count=1)
+
+print(extracted, 'remaining:', text)
+
+def str2lambda(s):
+	if '.' in s:
+		params, body = s.split('.')
+		for p in params:
+			...
+
+	for term in body: # can be only body
+		if len(body) % 2:
+			... # create tree recursively
