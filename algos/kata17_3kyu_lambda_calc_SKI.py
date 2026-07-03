@@ -31,24 +31,26 @@ def T(var: Var, expr: Expr):
             return App(App('S', T(var, func)), T(var, arg))
 
 
-def create_expression(s) -> Expr:
+def create_expression(s) -> Lambda:
     text = f'({s})' # add outer brackets to simplify loop
-    result_obj = ''
+    unicode_start = 8352 # currency symbols placeholders for bracket expressions 
 
-    replacements = []
+    replacements = {}
     while res:= re.search(r'\([^()]*\)', text):
-        repl_id = str(len(replacements))
+        symbol = chr(unicode_start + len(replacements))
         subexpr = res.group()
 
         lambda_: Expr = str2lambda(subexpr[1:-1])
-        replacements.append(repr(lambda_))
-        text = text.replace(subexpr, repl_id) # reduce processing string
+        replacements[symbol] = repr(lambda_)
+        text = text.replace(subexpr, symbol) # reduce processing string
 
-    for i, r in enumerate(replacements): # do replacements
-        for ind in range(i):
-            replacements[i] = replacements[i].replace(f"Var(name='{ind}')", replacements[ind])
+    resolved = {}
+    for k in replacements: # do replacements innermost bracket outwards
+        for key, value in resolved.items():
+            replacements[k] = replacements[k].replace(f"Var(name='{key}')", value)
+        resolved.update({k: replacements[k]})
 
-    return eval(replacements[-1]) # last item is the full expression
+    return eval(replacements.popitem()[1]) # last item is the full lambda
 
 
 def str2lambda(s) -> Expr:
@@ -77,8 +79,7 @@ def str2lambda(s) -> Expr:
     
 
 def eliminate(s):
-    print(s)
-    structure = create_expression(s)
+    structure: Lambda = create_expression(s)
     result = T(structure.param, structure.body)
     return str(result)
 
@@ -115,4 +116,3 @@ if __name__ == '__main__':
         res2 = T(structure.param, structure.body)
         print(s, '->', str(res2))
         print()
-
