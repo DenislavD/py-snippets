@@ -22,18 +22,26 @@ git push -u origin main         Push
 
 # Specific use cases:
 
-1. Delete (rewrite history) commits on remote:
+1. Git clone into existing directory
+git init
+git remote add origin PATH/TO/REPO
+git pull origin main
+git branch --set-upstream-to=origin/main main
+
+
+2. Delete (rewrite history) commits on remote:
 git clone <url> (in a temp dir)
 git reset HEAD^ --hard
+git reset HEAD~2 --hard
 git push origin -f
 
 
-2. Set current local branch to track remote branch:
+3. Set current local branch to track remote branch:
 git fetch --all
 git pull --all
 git branch --set-upstream-to=origin/foo
 
-3. Merging on upstream main
+4. Merging on upstream main
 - commit and push dev as usual
 - create and merge the pull request on github
 - sync local branches after the merge:
@@ -44,7 +52,7 @@ git checkout dev
 git merge main # This will be a "fast-forward" with no new commit
 git push # push the sync to origin
 
-4. Sprint -> Live release flow:
+5. Sprint -> Live release flow:
 git checkout sprint
 git pull origin sprint
 git checkout live
