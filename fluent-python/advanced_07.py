@@ -32,4 +32,7 @@ bound = inst.add # <bound method Adder.add of <__main__.Adder object at 0x..>
 # so on . access it gets called with the instance: Adder.add.__get__(inst)
 # -> returns a wrapped function add(inst)
 res = bound(2) # == add(inst, 2)
+# How ?
+# bound.__call__(*args):
+#    return bound.__func__(bound.__self__, *args)
 print(bound, res)
