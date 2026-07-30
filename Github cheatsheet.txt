@@ -1,6 +1,8 @@
 Github Cheatsheet
 
 # Base commands
+git fetch --all
+git reset --hard origin/<branch_name>
 git remote add origin <url>
 git remote set-url origin <url> Changes the origin
 git remote -v                   Shows the current urls connected
