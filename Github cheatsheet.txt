@@ -19,6 +19,7 @@ git update-index --chmod=+x .scripts/deploy.sh
 
 git add .                       Stages files in current folder
 git commit -m "Initial commit"  Saves the staged files as a commit, also see --amend
+git commit -am "Message"        Adds the modified files and commits
 git push -u origin main         Push
 
 
