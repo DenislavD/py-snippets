@@ -11,10 +11,10 @@ git branch -M main              Rename main branch to main
 
 git init .                      This creates a hidden .git folder
 git log origin/live --oneline -5 View commit history
-git cherry-pick <hash>		Pick commits, needs to be done in order older->newer
+git cherry-pick <hash>		      Pick commits, needs to be done in order older->newer
 git diff                        Shows the line-by-line changes
-git restore <filename>		Opposite of add - reloads from last commit
-git rm --cached <file>		Remove file from git history (if committed before .gitignore)
+git restore <filename>		      Opposite of add - reloads from last commit
+git rm --cached <file>		      Remove file from git history (if committed before .gitignore)
 git update-index --chmod=+x .scripts/deploy.sh
 
 git add .                       Stages files in current folder
@@ -22,6 +22,10 @@ git commit -m "Initial commit"  Saves the staged files as a commit, also see --a
 git commit -am "Message"        Adds the modified files and commits
 git push -u origin main         Push
 
+# Save password (token way):
+git config --global credential.helper store
+git fetch                       (or another command)
+-> add username and for password paste the github token generated
 
 # Specific use cases:
 
