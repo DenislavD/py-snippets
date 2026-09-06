@@ -1,3 +1,4 @@
+# basic info and access, filter
 import pandas as pd # installed globally on local
 
 # A DataFrame is a 2-dimensional DS with 0-based index, label (headers), rows and cols.
@@ -46,4 +47,3 @@ filter_ = (params['ID'] == '01.01.05.01') | (params['ID'] == '01.01.08.01')
 filter_ = params['ID'].isin(['01.01.05.01', '01.01.09.01']) # alternative
 selected_params = ids_names[filter_]
 print(selected_params)
-
