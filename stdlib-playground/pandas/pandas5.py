@@ -7,9 +7,11 @@
 
 import pandas as pd
 import numpy as np
+from pathlib import Path
+filepath = Path(__file__).parent / 'z_orders.csv'
 
 # dates. Normally OrderDate: str
-df = pd.read_csv('z_orders.csv', parse_dates=['OrderDate'])
+df = pd.read_csv(filepath, parse_dates=['OrderDate'])
 # Alternatively:
 df['OrderDate'] = pd.to_datetime(df['OrderDate'])
 

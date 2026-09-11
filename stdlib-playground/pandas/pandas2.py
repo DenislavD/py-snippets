@@ -5,13 +5,10 @@ params = pd.read_csv(r'D:\Programming\python\Learning\libraries\z_params.csv')
 
 # select both rows and columns in one go: loc/iloc
 cheap_items = params.loc[params['Price per Unit High'] < 18, 'ID'] # ['ID', 'Display Name']
-print('Items with cost > 18:')
-print(cheap_items)
+print('\nItems with cost < 18:\n', cheap_items)
 
 rows_5_10_cols_1_2 = params.iloc[5:10, :2] # uses Slice objects
-print('Specific rows/cols:')
-print(rows_5_10_cols_1_2)
-
+print('\nSpecific rows/cols:\n', rows_5_10_cols_1_2)
 
 # assignment
 params.loc[params['Price per Unit High'] < 18, 'ID'] = 'XX.XX'
@@ -35,7 +32,7 @@ print(params[['Display Name', 'ppu_1', 'ppu_2', 'ppu_3']])
 
 
 # cast
-params.astype({'Row': float})
+params = params.astype({'Row': float})
 print(params.dtypes)
 
 print('Mean High price:', params['ppu_1'].mean())
@@ -43,11 +40,10 @@ print(params[['ppu_1', 'ppu_2', 'ppu_3']].describe())
 
 # aggregation: groupby (split-apply-combine pattern)
 grouped_by_calctype = params[['Calc Type', 'ppu_1', 'ppu_2', 'ppu_3']].groupby('Calc Type').mean()
-print('AGGREGATION:')
-print(grouped_by_calctype)
+print('\nAGGREGATION:\n', grouped_by_calctype)
 # or (nested with $$$ column as well)  # also .size()=all rows
 grouped2 = params.groupby( ['Calc Type', '$$$'] )[ ['ppu_1', 'ppu_2', 'ppu_3'] ].count()
-print(grouped2)
+print('\ngrouped2:\n', grouped2)
 
 print(params['Calc Type'].value_counts())
 print(params.groupby('Calc Type')['Calc Type'].count()) # same

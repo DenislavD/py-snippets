@@ -1,6 +1,8 @@
 # str.func, ~ negation, drops, pd.concat, pd.merge (SQL-like)
 import pandas as pd
-df = pd.read_csv('z_orders.csv')
+from pathlib import Path
+filepath = Path(__file__).parent / 'z_orders.csv'
+df = pd.read_csv(filepath)
 
 print('\nFirst 5:\n', df[:5])
 print('\nFirst row:\n', list( df.iloc[0] )) # first row
@@ -34,21 +36,21 @@ print('Shape:', df.shape, '# adds the Shipped column too with NaN (passes isna)\
 print(df.tail(3), '\n')
 
 # turns the hierarchical Initial/New index to a plain column. If no level: resets ALL
-df = df.reset_index(level=0) 
+df = df.reset_index(level=0, names='AddedStatus') 
 print(df.tail(3))
 
 
 # merge / vlookup / SQL joins
 continents = {
-    'CustomerName': ['Anna Ivanova', 'Dadi', 'Carlos Santos'],
+    'CustomerName': ['Anna Ivanova', 'Dadi', 'Mbayk Samali'],
     'Continent': ['North America', 'Europe', 'Africa'],
 }
 continents_df = pd.DataFrame(continents)
 print(continents_df)
 
 # use left_on= and right_on= if the connecting column name is different
-merged = pd.merge(df, continents_df, how='left', on='CustomerName')
-print('\nMerged:\n', merged.tail())
+merged = pd.merge(df, continents_df, how='outer', on='CustomerName')
+print('\nMerged:\n', merged)
 
 
 

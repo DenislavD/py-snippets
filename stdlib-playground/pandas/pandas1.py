@@ -35,8 +35,8 @@ print(type(ids_names), ids_names.shape) # DataFrame with no. of rows/cols tuple,
 
 # comparison filter
 filter_series = ids_names['Price per Unit High'] < 30 # -> Series(True, False, False..)
-high_prices = ids_names[filter_series] # we can use the above to filter like in SUMPRODUCT
-print(high_prices)
+low_prices = ids_names[filter_series] # we can use the above to filter like in SUMPRODUCT
+print(low_prices)
 
 # remove blanks filter
 with_prices = ids_names[ids_names['Price per Unit High'].notna()]
