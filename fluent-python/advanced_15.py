@@ -3,6 +3,7 @@
 # Reorganize the data structure to allow object access via its serial
 import inspect
 import json
+from functools import cache
 
 JSON_PATH = 'z_osconfeed.json'
 
@@ -40,6 +41,14 @@ class Event(Record):
         key = f'venue.{self.venue_serial}'
         return self.__class__.fetch(key) # not using self.fetch here to avoid attribute shadowing
 
+    # this property has the same name as an attribute on the Record, overrides it
+    @property
+    @cache # this must be the order
+    def speakers(self):
+        speakers_serials = self.__dict__['speakers'] # avoids recursive __getattribute__(self, 'speakers')
+        fetch = self.__class__.fetch
+        return [fetch(f'speaker.{key}') for key in speakers_serials]
+
 
 def load(path=JSON_PATH) -> dict[str, Record]:
     "Builds a flat dict of items like event.35912 , speaker.145, venue.23567 and so on."
@@ -65,3 +74,5 @@ def load(path=JSON_PATH) -> dict[str, Record]:
 event = Record.fetch('event.33950')
 print(event)    
 print(event.venue, '|', event.venue.name, '| Serial:', event.venue_serial)    
+
+print(event.speakers[0].name) # Anna Martelli Ravenscroft
